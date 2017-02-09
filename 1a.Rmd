@@ -1,0 +1,116 @@
+---
+title: "Batterylife"
+author: "Ashutosh Mudgal"
+date: "29 January 2017"
+output: html_document
+---
+
+## Batterylife
+```{}
+
+Fred is a very predictable man. For instance, when he uses his laptop, all he does is watch TV shows. He always watches until his battery dies. He is also a very meticulous man. He has kept logs of every time he has charged his laptop, which includes how long he charged his laptop for and how long he was able to watch TV for afterwards. Now, Fred wants to use this log to predict how long he will be able to watch TV for when he starts so that he can plan his activites after watching his TV shows accordingly.
+
+Challenge
+
+You will be able to access Fred's laptop charging log by reading from the file "trainingdata.txt". The training data file will consist of 100 lines, each with 2 comma-separated numbers. The first number denotes the amount of time the laptop was charged and the second denotes the amount of time the battery lasted. The training data file can be downloaded here (this will be the same training data used when your program is run). The input for each of the test cases will consist of exactly 1 number rounded to 2 decimal places. For each input, output 1 number: the amount of time you predict his battery will last.
+```
+
+##Slide With Code
+========================================================
+#import file
+```{r}
+trainingdata <- read.csv("https://s3.amazonaws.com/hr-testcases/399/assets/trainingdata.txt", header=FALSE)
+View(trainingdata)
+```
+
+#summary of file
+```{r}
+summary(trainingdata)
+```
+
+#structure if batterylife
+```{r}
+str(trainingdata)
+```
+##Slide With Code
+========================================================
+#head 
+```{r}
+head(trainingdata)
+```
+
+##checking missing values
+```{r}
+library(Rcpp)
+library(VIM)
+library(grid)
+library(data.table)
+imputation_plot<-aggr(trainingdata,col=c('yellow','blue'),
+                      numbers=TRUE,sortVars=TRUE,
+                      labels=names(trainingdata),gap=3,
+                      ylab=c("Missing Data","Pattern"))
+
+```
+#make a subset
+```{r}
+trainingdata<-subset(trainingdata,V1<= 4)
+```
+
+#linear regression
+```{r}
+lmMod<-lm(V2~V1,data=trainingdata)
+```
+
+#prediction
+```{r}
+Pred<-predict(lmMod)
+```
+Slide With Code
+========================================================
+#summary of prediction
+```{r}
+summary(lmMod)
+```
+
+#coefficient of prediction
+```{r}
+coef(lmMod)
+```
+
+```{r}
+lmMod$residuals
+```
+
+#attach 
+```{r}
+attach(trainingdata)
+```
+
+##Slide With Plot
+========================================================
+
+```{r}
+plot(trainingdata$V2~trainingdata$V1)
+abline(lmMod)
+```
+
+```{r}
+layout(matrix(c(1,2,3,4),2,2))
+plot(lmMod)
+```
+
+
+##Slide with R Output
+
+```{r}
+output <-predict(lmMod,newdata = data.frame(V1=1.5))
+output
+```
+
+##cross validation
+```{r}
+
+library(DAAG)
+cv.lm(trainingdata,form.lm = formula(V2~V1),m=10)
+```
+
